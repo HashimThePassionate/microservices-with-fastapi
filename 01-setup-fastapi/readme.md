@@ -553,3 +553,215 @@ def signup(uname: str, passwd: str):
 3. 🔒 **bcrypt checkpw()** ensures passwords match securely.
 
 ---
+
+# 👤 **Profile Management with FastAPI (PUT Method**)
+
+## 📌 Update Profile Service
+
+Among the **profile management services**, the `update_profile()` service acts as a **PUT API service**.
+
+* It requires:
+
+  * The client’s **username** (as a key).
+  * A **new UserProfile model object** to replace existing profile information.
+
+---
+
+## 🐍 Code Implementation
+
+```python
+from uuid import UUID, uuid1
+from typing import Optional, List, Dict
+from datetime import date, datetime
+from enum import Enum
+
+valid_profiles = dict()
+
+class UserType(str, Enum):
+    admin = "admin"
+    teacher = "teacher"
+    alumni = "alumni"
+    student = "student"
+
+class UserProfile(BaseModel):
+    firstname: str
+    lastname: str
+    middle_initial: str
+    age: Optional[int] = 0
+    salary: Optional[int] = 0
+    birthday: date
+    user_type: UserType
+
+@app.put("/account/profile/update/{username}")
+def update_profile(username: str, id: UUID, new_profile: UserProfile):
+    if valid_users.get(username) == None:
+        return {"message": "User Does Not Exist"}
+    else:
+        user = valid_users.get(username)
+        if user.id == id:
+            valid_profiles[username] = new_profile
+            return {"message": "Profile Successfully Updated", "profile": new_profile}
+        else:
+            return {"message": "User Does Not Exist"}
+```
+
+---
+
+## 📝 Line-by-Line Explanation
+
+### 📦 Imports
+
+1. **`from uuid import UUID, uuid1`**
+
+   * `UUID` → Used for unique identifiers for each user.
+   * `uuid1()` → Generates unique IDs based on timestamp and machine info.
+
+2. **`from typing import Optional, List, Dict`**
+
+   * `Optional` → Allows fields to be optional with default values.
+   * `List` and `Dict` → For handling collections (not directly used here but available for extension).
+
+3. **`from datetime import date, datetime`**
+
+   * `date` → Used for birthdays.
+   * `datetime` → Available for timestamp operations.
+
+4. **`from enum import Enum`**
+
+   * Provides enumerations for fixed categories (like user roles).
+
+---
+
+### 🏷️ User Type Enum
+
+```python
+class UserType(str, Enum):
+    admin = "admin"
+    teacher = "teacher"
+    alumni = "alumni"
+    student = "student"
+```
+
+* Defines **user categories**.
+* Ensures `user_type` is one of these four → `"admin"`, `"teacher"`, `"alumni"`, `"student"`.
+
+---
+
+### 👤 User Profile Model
+
+```python
+class UserProfile(BaseModel):
+    firstname: str
+    lastname: str
+    middle_initial: str
+    age: Optional[int] = 0
+    salary: Optional[int] = 0
+    birthday: date
+    user_type: UserType
+```
+
+* A **Pydantic model** for structured profile data.
+* Fields:
+
+  * `firstname`, `lastname`, `middle_initial` → Required strings.
+  * `age` → Optional, defaults to `0`.
+  * `salary` → Optional, defaults to `0`.
+  * `birthday` → Must be a valid `date`.
+  * `user_type` → Must match one of the **UserType Enum values**.
+
+💡 Validation Example:
+
+* ✅ `user_type="student"` → Accepted.
+* ❌ `user_type="doctor"` → Rejected.
+
+---
+
+### 🔄 Update Profile Endpoint
+
+```python
+@app.put("/account/profile/update/{username}")
+def update_profile(username: str, id: UUID, new_profile: UserProfile):
+```
+
+* **`@app.put`** → Defines a **PUT endpoint**.
+* Endpoint URL: `/account/profile/update/{username}`
+
+  * `{username}` → Path parameter (the user to update).
+* Parameters:
+
+  * `username: str` → Path variable.
+  * `id: UUID` → User’s unique identifier (security check).
+  * `new_profile: UserProfile` → Request body (new profile data).
+
+---
+
+### 🧩 Logic Flow
+
+```python
+if valid_users.get(username) == None:
+    return {"message": "User Does Not Exist"}
+```
+
+* If username doesn’t exist in `valid_users` → return error.
+
+```python
+else:
+    user = valid_users.get(username)
+    if user.id == id:
+        valid_profiles[username] = new_profile
+        return {"message": "Profile Successfully Updated", "profile": new_profile}
+    else:
+        return {"message": "User Does Not Exist"}
+```
+
+* Retrieves user object.
+* Compares `user.id` with provided `id`.
+
+  * ✅ If match → profile is replaced with `new_profile`.
+  * ❌ If mismatch → error returned.
+
+---
+
+## ⚡ Dry Run Example
+
+### Input Request:
+
+```http
+PUT /account/profile/update/ali?id=550e8400-e29b-41d4-a716-446655440000
+Content-Type: application/json
+
+{
+  "firstname": "Ali",
+  "lastname": "Khan",
+  "middle_initial": "A",
+  "age": 25,
+  "salary": 50000,
+  "birthday": "2000-01-01",
+  "user_type": "student"
+}
+```
+
+### Server Logic:
+
+* Checks if `ali` exists in `valid_users`.
+* Verifies if `id` matches stored UUID.
+* Updates `valid_profiles["ali"]` with new profile.
+
+### Response:
+
+```json
+{
+  "message": "Profile Successfully Updated",
+  "profile": {
+    "firstname": "Ali",
+    "lastname": "Khan",
+    "middle_initial": "A",
+    "age": 25,
+    "salary": 50000,
+    "birthday": "2000-01-01",
+    "user_type": "student"
+  }
+}
+```
+
+---
