@@ -39,7 +39,7 @@
 | [**05_relational_db** 🗄️](./05-relational-db/) | CRUD with SQLAlchemy, async DB handling, CQRS pattern. |
 | [**06_nonrelational_db** 🍃](./06-nonrelational-db/) | MongoDB, Beanie, ODMantic, async CRUD operations. |
 | [**07_security_auth** 🔐](./07-security-auth/) | Authentication & Authorization: OAuth2, JWT, Keycloak, Okta, Auth0. |
-| [**08_async_events** ⚡](./08-async-events\) | Coroutines, Celery tasks, Kafka, RabbitMQ, SSE, WebSockets. |
+| [**08_async_events** ⚡](./08-async-events/) | Coroutines, Celery tasks, Kafka, RabbitMQ, SSE, WebSockets. |
 | [**09_advanced_features** 🛠️](./09-advanced-features/) | Session mgmt, CORS, Jinja2 templates, OpenAPI 3.x customization. |
 | [**10_numerical_graphql** 📊](./10-numerical-graphql/) | NumPy, Pandas, BPMN workflows, GraphQL, Neo4j integration. |
 | [**11_devops_docker** 🐳](./11-devops-docker/) | Docker, API Gateway with NGINX, Eureka, service discovery. |
