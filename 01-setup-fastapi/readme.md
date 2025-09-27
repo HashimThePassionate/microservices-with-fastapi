@@ -210,3 +210,143 @@ After the installation and configuration of:
 👉 You’re ready to **start your first API implementation** using FastAPI. 🎉
 
 ---
+
+# 🚀 **Initializing and Configuring FastAPI**
+
+## 📂 Project Setup
+
+Creating applications with **FastAPI** is easy and straightforward.
+A simple application can be created by making a file named **`main.py`** inside your project folder:
+
+```
+/01-setup-fastapi/main.py
+```
+
+---
+
+## 🐍 Basic FastAPI Application
+
+Here’s the very first code snippet to start with:
+
+```python
+from fastapi import FastAPI
+
+app = FastAPI()
+```
+
+### 🔎 Line-by-Line Explanation
+
+1. **`from fastapi import FastAPI`**
+
+   * Imports the **FastAPI class** from the `fastapi` module.
+   * This class is the **core building block** for any FastAPI app.
+
+2. **`app = FastAPI()`**
+
+   * Instantiates the **FastAPI application object**.
+   * The variable `app` is the **reference** to this object.
+   * Later, this object will be used with **decorators** like `@app.get()` or `@app.post()`.
+
+👉 You can replace `app` with any valid Python variable name (e.g., `main_app`, `forum`, `myapp`).
+
+---
+
+## 🧩 Using the @app Decorator
+
+The `app` object is used as a **decorator** to provide your application with features like:
+
+* 📌 Routes
+* 🧩 Middleware
+* ⚠️ Exception Handlers
+* 🔀 Path Operations
+
+### 🔹 Available Path Operations
+
+FastAPI supports **8 HTTP methods** through decorators:
+
+* `@app.get()`
+* `@app.post()`
+* `@app.delete()`
+* `@app.put()`
+* `@app.head()`
+* `@app.patch()`
+* `@app.trace()`
+* `@app.options()`
+
+These decorators are placed **on top of Python functions** that handle incoming requests and send responses.
+
+---
+
+## 📝 First API Endpoint Example
+
+```python
+@app.get("/index")
+def index():
+    return {"message": "Welcome Aspiring FastAPI!"}
+```
+
+### 🔎 Line-by-Line Explanation
+
+1. **`@app.get("/index")`**
+
+   * Defines a **GET endpoint** at the URL path `/index`.
+   * This means: whenever someone sends a GET request to `http://localhost:8000/index`, this function will run.
+
+2. **`def index():`**
+
+   * Defines a **Python function** named `index`.
+   * Acts as the **handler** for the `/index` request.
+
+3. **`return {"message": "Welcome Aspiring FastAPI!"}`**
+
+   * Returns a **JSON response** to the client.
+   * FastAPI automatically converts Python dictionaries into JSON format.
+
+💡 Example Response when visiting `/index`:
+
+```json
+{
+  "message": "Welcome Aspiring FastAPI!"
+}
+```
+
+---
+
+## ▶️ Running the Application
+
+Use the following command to run your application locally:
+
+```bash
+uvicorn main:app --reload
+```
+
+### 🔎 Command Breakdown
+
+* **`uvicorn`** → Starts the Uvicorn ASGI server.
+* **`main:app`** →
+
+  * `main` = the filename (`main.py` without `.py`).
+  * `app` = the FastAPI instance created (`app = FastAPI()`).
+* **`--reload`** → Enables **live reload**, meaning the server restarts automatically when you change the code.
+
+---
+
+## 📋 Example Console Output
+
+```bash
+> uvicorn main:app --reload
+INFO:     Will watch for changes in these directories: ['C:\\Users\\Hashim\\Desktop\\resources\\fastapi\\01-setup-fastapi']
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [7876] using WatchFiles
+INFO:     Started server process [11656]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+```
+
+### 🔎 Explanation
+
+* Uvicorn runs the app on **localhost (127.0.0.1)** using **port 8000**.
+* Default URL for your endpoint: 👉 [http://localhost:8000/index](http://localhost:8000/index)
+* To stop the server → Press **CTRL + C**
+
+---
