@@ -931,3 +931,154 @@ Content-Type: application/json
 | Example Fields | All user info         | First/last/middle names   |
 
 ---
+
+# 🗑️ **Deleting Records with FastAPI (DELETE Method)**
+
+## 📌 Why DELETE?
+
+* The **DELETE** HTTP method is used to **remove records or information**.
+* Typically requires:
+
+  * A **unique identifier** (e.g., UUID).
+  * A **valid user key** (e.g., username).
+* Ensures only the rightful owner or admin can remove data.
+
+---
+
+## 🐍 Example: Delete Discussion Post
+
+```python
+discussion_posts = dict()
+
+@app.delete("/discussion/posts/remove/{username}")
+def delete_discussion(username: str, id: UUID):
+    if valid_users.get(username) == None:
+        return {"message": "User Does Not Exist"}
+    elif discussion_posts.get(id) == None:
+        return {"message": "Post Does Not Exist"}
+    else:
+        del discussion_posts[id]
+        return {"message": "Post Successfully Deleted"}
+```
+
+---
+
+## 📝 Line-by-Line Explanation
+
+### 🔹 Data Store
+
+```python
+discussion_posts = dict()
+```
+
+* Dictionary to store all discussion posts.
+* Keys = post UUIDs, Values = post objects.
+
+---
+
+### 🔹 Endpoint
+
+```python
+@app.delete("/discussion/posts/remove/{username}")
+```
+
+* Defines a **DELETE endpoint**.
+* Path = `/discussion/posts/remove/{username}`.
+* `{username}` → path parameter (the user requesting the deletion).
+
+---
+
+### 🔹 Function Definition
+
+```python
+def delete_discussion(username: str, id: UUID):
+```
+
+* Parameters:
+
+  * `username: str` → path parameter.
+  * `id: UUID` → the unique identifier of the post to be deleted.
+
+---
+
+### 🔹 Validation Checks
+
+```python
+if valid_users.get(username) == None:
+    return {"message": "User Does Not Exist"}
+```
+
+* Checks if the requesting user is valid.
+
+```python
+elif discussion_posts.get(id) == None:
+    return {"message": "Post Does Not Exist"}
+```
+
+* Ensures the post with that UUID exists.
+
+---
+
+### 🔹 Deletion Logic
+
+```python
+else:
+    del discussion_posts[id]
+    return {"message": "Post Successfully Deleted"}
+```
+
+* If user exists **and** post exists → deletes post from `discussion_posts`.
+* Returns a success confirmation.
+
+---
+
+## ⚡ Dry Run Example
+
+### Input Request
+
+```http
+DELETE /discussion/posts/remove/ali?id=550e8400-e29b-41d4-a716-446655440000
+```
+
+### Possible Scenarios
+
+1. ❌ If `"ali"` not found in `valid_users`:
+
+   ```json
+   { "message": "User Does Not Exist" }
+   ```
+
+2. ❌ If post with UUID doesn’t exist:
+
+   ```json
+   { "message": "Post Does Not Exist" }
+   ```
+
+3. ✅ If both checks pass:
+
+   ```json
+   { "message": "Post Successfully Deleted" }
+   ```
+
+---
+
+## 📌 Best Practices for Path Operations
+
+* Every path operation should have a **unique endpoint URL** in `str` format.
+* Good practice:
+
+  * Use a **common top-level base path** (e.g., `/ch01`).
+  * Differentiate by **subdirectories** (e.g., `/ch01/discussion/posts/remove/{username}`).
+
+---
+
+## 📊 API Documentation with OpenAPI
+
+After running the Uvicorn server, you can **validate all endpoints** via FastAPI’s built-in OpenAPI docs:
+
+👉 Open in browser: [http://localhost:8000/docs](http://localhost:8000/docs)
+
+This opens the **Swagger UI** dashboard (Figure 1.2), listing all created API methods with interactive testing options.
+
+---
+\

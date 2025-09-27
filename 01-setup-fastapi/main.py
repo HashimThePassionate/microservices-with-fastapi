@@ -9,6 +9,7 @@ from enum import Enum
 app = FastAPI()
 valid_users = dict()
 valid_profiles = dict()
+discussion_posts = dict()
 
 @app.get("/index")
 def index():
@@ -90,4 +91,15 @@ def update_profile_names(username: str, id: UUID, new_names: Dict[str,str]):
             return {"message":"Profile Names Successfully Updated", "profile": profile}
         else:
             {"message":"User Does Not Exist"}
+
+
+@app.delete("/discussion/posts/remove/{username}")
+def delete_discussion(username: str, id: UUID):
+    if valid_users.get(username) == None:
+        return {"message":"User Does Not Exist"}
+    elif discussion_posts.get(id) == None:
+        return {"message":"Post Does Not Exist"}
+    else:
+        del discussion_posts[id]
+        return {"message":"Post Successfully Deleted"}
 
