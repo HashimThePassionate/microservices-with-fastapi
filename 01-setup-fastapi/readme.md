@@ -1081,4 +1081,3 @@ After running the Uvicorn server, you can **validate all endpoints** via FastAPI
 This opens the **Swagger UI** dashboard (Figure 1.2), listing all created API methods with interactive testing options.
 
 ---
-\
