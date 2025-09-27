@@ -350,3 +350,206 @@ INFO:     Application startup complete.
 * To stop the server → Press **CTRL + C**
 
 ---
+
+# 🌐 **Designing and Implementing REST APIs with FastAPI**
+
+## 🔎 What is a REST API?
+
+The **Representation State Transfer (REST) API** defines the **rules, processes, and tools** that allow **interaction among microservices**.
+
+* REST APIs are composed of **method services**, which are:
+
+  * Identified by **endpoint URLs**
+  * Executed via **HTTP request methods** (`GET`, `POST`, `PUT`, `DELETE`, etc.)
+
+---
+
+## 🚀 API-First Microservices Development
+
+One of the most effective modern strategies is **API-first microservices development**:
+
+* 🎯 Focuses first on **client needs**
+* 🏗️ Then identifies **what API services** are needed
+
+👉 In our **online academic discussion forum app**, we prioritized features like:
+
+* 👤 User **sign-up**
+* 🔑 User **login**
+* 📝 Profile management
+* 💬 Posting messages
+* 💬 Managing post replies
+
+These are implemented as **FastAPI service methods** using Python’s `def` keyword and decorated with the appropriate **HTTP method** (`@app.get`, `@app.post`, etc.).
+
+---
+
+# 🔑 Login Service Example (GET Method)
+
+The **login service** requires **username** and **password** request parameters.
+
+```python
+from bcrypt import hashpw, gensalt, checkpw
+
+valid_users = dict()
+
+@app.get("/login")
+def login(username: str, password: str):
+    if valid_users.get(username) == None:
+        return {"message": "User Does Not Exist"}
+    else:
+        user = valid_users.get(username)
+        if checkpw(password.encode(), user.passphrase.encode()):
+            return user
+        else:
+            return {"message": "Invalid User"}
+```
+
+---
+
+### 📝 Code Walkthrough (Line-by-Line)
+
+1. **`from bcrypt import hashpw, gensalt, checkpw`**
+
+   * Imports functions from **bcrypt** for password encryption and validation.
+   * `checkpw` → checks if entered password matches the stored hashed password.
+
+2. **`valid_users = dict()`**
+
+   * A dictionary to **store valid registered users**.
+   * Keys = usernames, Values = user objects.
+
+3. **`@app.get("/login")`**
+
+   * Defines a **GET endpoint** at `/login`.
+   * Requires query parameters: `username` and `password`.
+
+4. **`if valid_users.get(username) == None:`**
+
+   * Checks if the username exists.
+   * If not → returns: `{"message": "User Does Not Exist"}`.
+
+5. **`else: user = valid_users.get(username)`**
+
+   * Retrieves the user object.
+
+6. **`if checkpw(password.encode(), user.passphrase.encode()):`**
+
+   * Encodes the entered password.
+   * Compares with the stored hashed password (`user.passphrase`).
+
+7. **Return values:**
+
+   * ✅ If valid → returns the **user object**.
+   * ❌ If invalid → returns `{"message": "Invalid User"}`.
+
+---
+
+## 🔐 How Password Validation Works (Dry Run Example)
+
+Suppose we have:
+
+```python
+valid_users = {
+    "ali": User(username="ali", passphrase="$2b$12$...")
+}
+```
+
+* Input → `username="ali", password="mypassword"`
+* `checkpw("mypassword".encode(), stored_hash)` → ✅ returns True if hash matches.
+* Response → User object for `"ali"`.
+
+---
+
+# 📝 Validating Request Bodies with Pydantic
+
+## 🔎 Why Validation?
+
+Validation ensures that **only defined data** is received → prevents:
+
+* 🚫 Malicious attacks
+* 🚫 Unexpected data
+
+## 📦 Pydantic
+
+* A **Python library** used by FastAPI for validation.
+* Uses **Python type annotations**.
+* Models are created by subclassing **`BaseModel`**.
+
+Example:
+
+```python
+from pydantic import BaseModel
+
+class User(BaseModel):
+    username: str
+    password: str
+```
+
+---
+
+# 🆕 Sign-Up Service Example (POST Method)
+
+The **sign-up service** allows users to register with a username and password.
+
+```python
+from pydantic import BaseModel
+
+class User(BaseModel):
+    username: str
+    password: str
+
+pending_users = dict()
+
+@app.post("/login/signup")
+def signup(uname: str, passwd: str):
+    if (uname == None and passwd == None):
+        return {"message": "Invalid User"}
+    elif not valid_users.get(uname) == None:
+        return {"message": "User Already Exists"}
+    else:
+        user = User(username=uname, password=passwd)
+        pending_users[uname] = user
+        return user
+```
+
+---
+
+### 📝 Code Walkthrough (Line-by-Line)
+
+1. **`class User(BaseModel):`**
+
+   * Defines a **Pydantic model**.
+   * Ensures request body has `username` (string) and `password` (string).
+
+2. **`pending_users = dict()`**
+
+   * Stores **newly registered users** before moving them to `valid_users`.
+
+3. **`@app.post("/login/signup")`**
+
+   * Defines a **POST endpoint** at `/login/signup`.
+
+4. **Function `signup(uname: str, passwd: str):`**
+
+   * Takes username and password from the client.
+
+5. **Condition Checks:**
+
+   * If both `uname` and `passwd` are missing → returns `{"message": "Invalid User"}`.
+   * If `uname` already exists in `valid_users` → returns `{"message": "User Already Exists"}`.
+
+6. **Creating a New User:**
+
+   * `user = User(username=uname, password=passwd)` → creates a new Pydantic user object.
+   * Adds it to `pending_users`.
+   * Returns the newly created user.
+
+---
+
+## ⚡ Flow of Signup & Login
+
+1. 📝 **Sign-up (POST)** → User provides credentials → stored in `pending_users`.
+2. 🔑 **Login (GET)** → System checks against `valid_users`.
+3. 🔒 **bcrypt checkpw()** ensures passwords match securely.
+
+---
