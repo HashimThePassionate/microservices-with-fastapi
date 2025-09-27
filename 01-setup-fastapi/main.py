@@ -71,3 +71,23 @@ def update_profile(username: str, id: UUID, new_profile: UserProfile):
             return {"message": "Profile Successfully Updated", "profile": new_profile}
         else:
             {"message": "User Does Not Exist"}
+
+
+@app.patch("/account/profile/update/names/{username}")
+def update_profile_names(username: str, id: UUID, new_names: Dict[str,str]):
+    if valid_users.get(username) == None:
+        return {"message":"User Does Not Exist"}
+    elif new_names == None:
+        return {"message":"new names are required"}
+    else:
+        user = valid_users.get(username)
+        if user.id == id:
+            profile = valid_profiles[username]
+            profile.firstname = new_names['fname']
+            profile.lastname = new_names['lname']
+            profile.middle_initial = new_names['mi']
+            valid_profiles[username] = profile
+            return {"message":"Profile Names Successfully Updated", "profile": profile}
+        else:
+            {"message":"User Does Not Exist"}
+

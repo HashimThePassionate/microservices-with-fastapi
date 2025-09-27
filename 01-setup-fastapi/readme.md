@@ -763,5 +763,171 @@ Content-Type: application/json
   }
 }
 ```
+---
+
+# ✂️ **Partial Updates with PATCH in FastAPI**
+
+## 📌 Why PATCH Instead of PUT?
+
+* **PUT** → Requires a **full replacement** of an object.
+* **PATCH** → Used for **partial updates** where only some fields change.
+* ✅ Lightweight and efficient for small modifications.
+* ❌ PUT would be “overkill” if only a few fields need to be updated.
+
+In this case, we only want to update **names** (first, last, and middle initial) of a profile → so we use **PATCH**.
+
+---
+
+## 🐍 Code Implementation
+
+```python
+@app.patch("/account/profile/update/names/{username}")
+def update_profile_names(username: str, id: UUID, new_names: Dict[str, str]):
+    if valid_users.get(username) == None:
+        return {"message": "User Does Not Exist"}
+    elif new_names == None:
+        return {"message": "new names are required"}
+    else:
+        user = valid_users.get(username)
+        if user.id == id:
+            profile = valid_profiles[username]
+            profile.firstname = new_names['fname']
+            profile.lastname = new_names['lname']
+            profile.middle_initial = new_names['mi']
+            valid_profiles[username] = profile
+            return {"message": "Profile Names Successfully Updated", "profile": profile}
+        else:
+            return {"message": "User Does Not Exist"}
+```
+
+---
+
+## 📝 Line-by-Line Explanation
+
+### 🔹 Decorator
+
+```python
+@app.patch("/account/profile/update/names/{username}")
+```
+
+* Defines a **PATCH endpoint** at `/account/profile/update/names/{username}`.
+* `{username}` → path parameter (target user).
+
+---
+
+### 🔹 Function Definition
+
+```python
+def update_profile_names(username: str, id: UUID, new_names: Dict[str, str]):
+```
+
+* `username: str` → The username whose profile will be updated.
+* `id: UUID` → Unique identifier for the user (to verify authenticity).
+* `new_names: Dict[str, str]` → Request body containing new values for names in dictionary format.
+
+---
+
+### 🔹 Validation
+
+```python
+if valid_users.get(username) == None:
+    return {"message": "User Does Not Exist"}
+```
+
+* If user doesn’t exist → return error message.
+
+```python
+elif new_names == None:
+    return {"message": "new names are required"}
+```
+
+* If client didn’t send new names → return error.
+
+---
+
+### 🔹 Update Logic
+
+```python
+else:
+    user = valid_users.get(username)
+    if user.id == id:
+        profile = valid_profiles[username]
+        profile.firstname = new_names['fname']
+        profile.lastname = new_names['lname']
+        profile.middle_initial = new_names['mi']
+        valid_profiles[username] = profile
+        return {"message": "Profile Names Successfully Updated", "profile": profile}
+```
+
+* ✅ If user exists AND `id` matches →
+
+  * Retrieves user’s current profile.
+  * Updates only **first name, last name, and middle initial**.
+  * Saves updated profile back to `valid_profiles`.
+  * Returns success message + updated profile.
+
+```python
+else:
+    return {"message": "User Does Not Exist"}
+```
+
+* If UUID doesn’t match → return error.
+
+---
+
+## ⚡ Dry Run Example
+
+### Input Request
+
+```http
+PATCH /account/profile/update/names/ali?id=550e8400-e29b-41d4-a716-446655440000
+Content-Type: application/json
+
+{
+  "fname": "Ali",
+  "lname": "Khan",
+  "mi": "A"
+}
+```
+
+### Processing
+
+1. Finds user `"ali"` in `valid_users`.
+2. Confirms `id` matches stored UUID.
+3. Updates only:
+
+   * `firstname` → "Ali"
+   * `lastname` → "Khan"
+   * `middle_initial` → "A"
+
+### Response
+
+```json
+{
+  "message": "Profile Names Successfully Updated",
+  "profile": {
+    "firstname": "Ali",
+    "lastname": "Khan",
+    "middle_initial": "A",
+    "age": 25,
+    "salary": 50000,
+    "birthday": "2000-01-01",
+    "user_type": "student"
+  }
+}
+```
+
+💡 Notice that other profile fields like `age`, `salary`, `birthday`, and `user_type` remain **unchanged**.
+
+---
+
+## 📌 Key Differences: PUT vs PATCH
+
+| Feature        | PUT (Full Update) 🏗️ | PATCH (Partial Update) ✂️ |
+| -------------- | --------------------- | ------------------------- |
+| Scope          | Entire object         | Specific fields only      |
+| Request Body   | Full object required  | Partial object allowed    |
+| Use Case       | Replace profile       | Update just names         |
+| Example Fields | All user info         | First/last/middle names   |
 
 ---
